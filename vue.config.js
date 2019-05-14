@@ -1,5 +1,5 @@
 // vue.config.js
 module.exports = {
   publicPath:
-    process.env.NODE_ENV === 'production' ? '/mongo_material-CRUD/' : '/'
+    process.env.NODE_ENV === 'production' ? '/mongo-material-CRUD/' : '/'
 }
