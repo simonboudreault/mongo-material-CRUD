@@ -10,7 +10,7 @@
     "test:unit": "vue-cli-service test:unit",
     "deploy": "gh-pages -d dist"
   },
-  "homepage": "https://simonboudreault.github.io/mongo_material-CRUD",
+  "homepage": "https://simonboudreault.github.io/mongo-material-CRUD",
   "dependencies": {
     "axios": "^0.18.0",
     "core-js": "^2.6.5",
