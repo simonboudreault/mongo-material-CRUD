@@ -1,9 +1,8 @@
 import axios from 'axios'
-import store from '../store/store'
 
 const apiClient = axios.create({
-  // baseURL: 'http://localhost:5000'
-  baseURL: 'https://mongodb-crud-server.herokuapp.com/'
+  baseURL: 'http://localhost:5000'
+  // baseURL: 'https://mongodb-crud-server.herokuapp.com/'
 })
 
 // apiClient.interceptors.request.use(config => {

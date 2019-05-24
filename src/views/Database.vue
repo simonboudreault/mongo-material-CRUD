@@ -231,7 +231,6 @@ export default {
   created() {
     // eslint-disable-next-line prettier/prettier
     this.getSections()
-    this.setLoadingStatus(true)
   },
   mounted() {
     this.setLoadingStatus(true)
@@ -290,9 +289,13 @@ export default {
       'toggleDatabaseConnexion'
     ]),
     getSections() {
-      this.fetchSections().then(err => {
-        if (err) {
-          this.error = err
+      this.setLoadingStatus(true)
+      this.fetchSections().then(res => {
+        if (typeof res === 'boolean') {
+          this.isDBOn = res
+        } else {
+          this.error = res
+          this.isDBOn = false
         }
       })
     },
@@ -516,6 +519,10 @@ export default {
     },
     toggle() {
       this.toggleDatabaseConnexion().then(response => {
+        if (this.documents.length === 0) {
+          this.error = ''
+          setTimeout(this.getSections, 250)
+        }
         this.isDBOn = response
       })
     }
