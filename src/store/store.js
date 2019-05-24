@@ -46,8 +46,9 @@ export default new Vuex.Store({
       return dbService
         .getSections()
         .then(response => {
-          commit('SET_SECTIONS', response.data)
+          commit('SET_SECTIONS', response.data.documents)
           console.log('fetched documents')
+          return response.data.db
         })
         .catch(err => {
           commit('SET_LOADING_STATUS', false)
