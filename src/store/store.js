@@ -10,7 +10,10 @@ export default new Vuex.Store({
     editObject: {},
     editDialog: false,
     insertDialog: false,
-    deleteItemDialog: false
+    deleteItemDialog: false,
+    loading: false,
+    renderCount: 0,
+    error: ''
   },
   mutations: {
     SET_SECTIONS(state, sections) {
@@ -30,17 +33,31 @@ export default new Vuex.Store({
     },
     SET_DELETE_ITEM_DIALOG(state, value) {
       state.deleteItemDialog = value
+    },
+    SET_LOADING_STATUS(state, value) {
+      state.loading = value
+    },
+    SET_ERROR(state, errorMessage) {
+      state.error = errorMessage
     }
   },
   actions: {
     fetchSections({ commit }) {
-      return dbService.getSections().then(response => {
-        commit('SET_SECTIONS', response.data)
-        console.log('fetched sections')
-      })
+      return dbService
+        .getSections()
+        .then(response => {
+          commit('SET_SECTIONS', response.data)
+          console.log('fetched documents')
+        })
+        .catch(err => {
+          commit('SET_LOADING_STATUS', false)
+          // console.log(err.response.data.error)
+          return err.response.data.error
+        })
     },
     setEditObject({ commit }, object) {
       commit('SET_EDIT_OBJECT', object)
+      // console.log(object)
     },
     resetEditObject({ commit }) {
       commit('RESET_EDIT_OBJECT')
@@ -54,6 +71,9 @@ export default new Vuex.Store({
     setDeleteItemDialog({ commit }, value) {
       commit('SET_DELETE_ITEM_DIALOG', value)
     },
+    setLoadingStatus({ commit }, value) {
+      commit('SET_LOADING_STATUS', value)
+    },
     // eslint-disable-next-line no-unused-vars
     insertDocument({ dispatch }, payload) {
       let object = {
@@ -61,13 +81,15 @@ export default new Vuex.Store({
       }
       return dbService.postSection(object)
     },
-    editDocument({ state }, value) {
+    editDocument({ state }, params) {
       let object = {
         _id: state.editObject.id,
         payload: {
-          [state.editObject.field]: value
+          [state.editObject.arrayPath
+            ? state.editObject.arrayPath
+            : state.editObject.field]: params.value
         },
-        modifyer: '$set'
+        modifyer: params.modifyer
       }
       return dbService.putSection(object)
     },
@@ -79,7 +101,14 @@ export default new Vuex.Store({
         },
         modifyer: '$unset'
       }
-      return dbService.putSection(object)
+      return dbService.putSection(object).catch(err => {
+        return err.response.data.error
+      })
+    },
+    toggleDatabaseConnexion() {
+      return dbService.toggleDB().then(response => {
+        return response.data.DB
+      })
     }
   }
 })

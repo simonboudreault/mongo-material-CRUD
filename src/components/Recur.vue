@@ -1,52 +1,75 @@
 <template>
-  <v-expansion-panel-content class="hover">
-    <template v-slot:header>
-      <div class="title">{{ k }}</div>
-      <v-spacer class="spacer"></v-spacer>
-      <v-btn
-        color="grey"
-        v-if="deletable"
-        flat
-        fab
-        small
-        @click="deleteDocument"
-      >
-        <v-icon>delete</v-icon>
-      </v-btn>
-    </template>
-    <v-layout>
-      <v-flex v-if="type == 'object'" xs-12 class="pa-2 fl">
-        <v-expansion-panel expand v-model="panel">
-          <!-- <div v-if="index">{{ index }}</div> -->
-          <!-- <div v-else-if="key">{{ key }}</div> -->
-          <!-- <div>{{ k }}</div> -->
-
-          <!-- <div>index: {{ index }}</div>
-        <div>key: {{ k }}</div>
-          <div>path: {{ cPath }}</div>-->
-
-          <recur
-            v-for="(element, key, index) in elements"
-            :elements="element"
-            :key="key"
-            :k="key"
-            :index="index"
-            :path="cPath"
-          ></recur>
-        </v-expansion-panel>
-      </v-flex>
-      <v-flex xs12 v-else>
-        <!-- <div v-if="index">{{ index }}</div> -->
-        <!-- <div v-else>{{ k }}</div> -->
-        <!-- <span>{{ k }}&nbsp;:&nbsp;</span> -->
-        <!-- <div>index: {{ index }}</div>
-        <div>key: {{ k }}</div>
-        <div>path: {{ cPath }}</div>-->
-        <h4 class="text-xs-center">{{ value }}</h4>
-        <Badge @edit="editDocument" @delete-item="deleteItem"></Badge>
-      </v-flex>
-    </v-layout>
-  </v-expansion-panel-content>
+  <v-flex
+    row
+    xs12
+    @mouseover="isActive = true"
+    @mouseleave="isActive = false"
+    class="flexWrapper"
+  >
+    <v-expansion-panel-content
+      :class="{ hover: header !== '_id' }"
+      :readonly="header === '_id'"
+    >
+      <template v-slot:header>
+        <div class="subheading font-weight-medium">{{ header }}</div>
+        <div class="accent--text text-xs-center spacer">
+          <div v-if="header === '_id'">{{ value }}</div>
+        </div>
+        <!-- <v-spacer class="spacer"></v-spacer> -->
+        <v-fab-transition>
+          <v-btn
+            class="headerButton"
+            color="primary"
+            v-if="!deletable && header !== '_id'"
+            flat
+            fab
+            small
+            v-show="isActive"
+            @click="deleteItem"
+          >
+            <v-icon>delete</v-icon>
+          </v-btn>
+        </v-fab-transition>
+        <v-btn
+          color="primary"
+          v-if="deletable"
+          flat
+          fab
+          small
+          @click="deleteDocument"
+        >
+          <v-icon>delete</v-icon>
+        </v-btn>
+        <div class="caption font-weight-bold accent--text text-uppercase">
+          {{ type }}
+        </div>
+      </template>
+      <v-layout>
+        <v-flex
+          v-if="type === 'object' || type === 'array'"
+          xs-12
+          class="pa-2 fl"
+        >
+          <v-expansion-panel expand v-model="panel">
+            <recur
+              v-for="(element, key, index) in elements"
+              :elements="element"
+              :key="key"
+              :k="key"
+              :isArray="type === 'array'"
+              :index="index"
+              :path="cPath"
+              :oPath="objectPath"
+            ></recur>
+          </v-expansion-panel>
+        </v-flex>
+        <v-flex xs12 v-else class="text-xs-center">
+          {{ value }}
+          <Badge v-if="k !== '_id'" @edit="editDocument"></Badge>
+        </v-flex>
+      </v-layout>
+    </v-expansion-panel-content>
+  </v-flex>
 </template>
 <script>
 import recur from '@/components/Recur.vue'
@@ -54,7 +77,16 @@ import Badge from '@/components/Badge.vue'
 import dbService from '@/services/dbService'
 export default {
   name: 'recur',
-  props: ['elements', 'k', 'index', 'path', 'deletable'],
+  props: [
+    'elements',
+    'k',
+    'index',
+    'path',
+    'deletable',
+    'lazy',
+    'isArray',
+    'oPath'
+  ],
   components: {
     recur,
     Badge
@@ -65,11 +97,18 @@ export default {
       dialog: false,
       deleteDialog: false,
       value: this.elements,
+      dataElements: this.elements,
       panel: [],
-      isActive: true
+      isActive: false
+    }
+  },
+  watch: {
+    elements(newValue) {
+      this.value = newValue
     }
   },
   mounted() {
+    // this.$store.dispatch('setRenderCount', -1)
     // if (this.cPath === '_id') {
     //   this.$store.state.id = this.elements
     // }
@@ -78,7 +117,6 @@ export default {
   },
   methods: {
     editDocument() {
-      // console.log(`${this.cPath}`)
       let editObject = {
         id: this.docId,
         field: this.cField,
@@ -93,8 +131,13 @@ export default {
         id: this.docId,
         field: this.cField,
         component: this,
-        path: this.cPath
+        path: this.Path,
+        cPath: this.cPath,
+        isArray: this.isArray,
+        oPath: this.oPath,
+        property: this.k
       }
+      // console.log(eval('this.$store.state.sections' + this.oPath))
       this.$store.dispatch('setDeleteItemDialog', true)
       this.$store.dispatch('setEditObject', editObject)
     },
@@ -157,6 +200,21 @@ export default {
     },
     closeDelete() {
       this.$store.state.deleteDialog = false
+    },
+    typeOf(el) {
+      if (typeof el === 'object') {
+        return el === null
+          ? 'null'
+          : Object.prototype.toString.call(el) === '[object Array]'
+          ? 'array'
+          : 'object'
+      } else {
+        return typeof el
+      }
+    },
+    activate() {
+      console.log('activate')
+      this.isActive = !this.isActive
     }
 
     // save() {
@@ -170,13 +228,28 @@ export default {
   },
   computed: {
     type() {
-      return typeof this.elements
+      return this.typeOf(this.elements)
     },
     cPath() {
       if (!this.path) {
         return `${this.k}`
       } else {
         return `${this.path}.${this.k}`
+      }
+    },
+    objectPath() {
+      if (this.isArray) {
+        if (!this.path) {
+          return `[${this.k}]`
+        } else {
+          return `${this.oPath}[${this.k}]`
+        }
+      } else {
+        if (!this.path) {
+          return `${this.k}`
+        } else {
+          return `${this.oPath}.${this.k}`
+        }
       }
     },
     cField() {
@@ -186,6 +259,18 @@ export default {
       // eslint-disable-next-line no-useless-escape
       let exp = new RegExp(/[^\.]*/)
       return this.cPath.match(exp)
+    },
+    header() {
+      // eslint-disable-next-line no-control-regex
+      let regexp = new RegExp('[0-9]')
+      return regexp.test(this.k.toString())
+        ? this.deletable
+          ? `Document ${this.k + 1}`
+          : `Item ${this.k + 1}`
+        : this.k
+    },
+    computedKey() {
+      return Math.floor(Math.random() * 1000)
     }
   }
 }
@@ -203,6 +288,40 @@ export default {
 .spacer {
   flex-grow: 999 !important;
 }
+
+.v-btn {
+  transition-duration: 200ms;
+}
+
+.v-btn:hover {
+  /* color: var(--v-error-base) !important; */
+}
+
+.v-btn--floating {
+}
+
+.v-btn:before {
+  color: var(--v-error-base);
+}
+
+.headerButton {
+  margin: 0 6px;
+  width: 20px;
+  height: 20px;
+}
+
+.v-btn__content i {
+  font-size: 13px !important;
+}
+
+.flexWrapper {
+  margin-bottom: 1px;
+}
+
+.full-width {
+  width: 100% !important;
+}
+
 /* .v-expansion-panel__container--active:hover {
   background: #fff !important;
 } */

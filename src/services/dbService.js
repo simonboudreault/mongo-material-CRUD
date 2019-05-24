@@ -4,6 +4,9 @@ export default {
   getSections() {
     return Api().get('/')
   },
+  toggleDB() {
+    return Api().get('/connexion')
+  },
   putSection(id) {
     return Api().put('/', id)
   },
