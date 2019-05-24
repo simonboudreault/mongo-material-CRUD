@@ -4,14 +4,9 @@
       <!-- <template v-slot:badge>
         <span></span>
       </template>-->
-      <v-icon color="grey lighten-1" @click="edit">edit</v-icon>
-    </v-badge>
-
-    <v-badge color="red">
-      <!-- <template v-slot:badge>
-        <span></span>
-      </template>-->
-      <v-icon color="grey" @click="deleteItem">delete</v-icon>
+      <v-btn small flat round color="accent" @click="edit" class="caption">
+        <v-icon class="iconA">edit</v-icon>&nbsp;&nbsp;Edit value
+      </v-btn>
     </v-badge>
   </div>
 </template>
@@ -29,4 +24,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.iconA {
+  font-size: 16px !important;
+}
+</style>
