@@ -1,22 +1,22 @@
 import Api from '@/services/Api'
 
 export default {
-  getSections() {
-    return Api().get('/')
+  getSections(collName) {
+    return Api().get('/?coll=' + collName)
   },
   toggleDB() {
     return Api().get('/connexion')
   },
-  putSection(id) {
-    return Api().put('/', id)
+  putSection(payload) {
+    return Api().put('/', payload)
   },
-  postSection(id) {
-    return Api().post('/', id)
+  postSection(payload) {
+    return Api().post('/', payload)
   },
-  getSection(id) {
-    return Api().get('/sections/' + id)
+  getSection(payload) {
+    return Api().get('/sections/' + payload)
   },
-  deleteSection(id) {
-    return Api().delete('/', { data: id })
+  deleteSection(payload) {
+    return Api().delete('/', { data: payload })
   }
 }

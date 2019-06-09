@@ -6,6 +6,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    user: {},
     sections: [],
     editObject: {},
     editDialog: false,
@@ -16,6 +17,9 @@ export default new Vuex.Store({
     error: ''
   },
   mutations: {
+    SET_USER(state, user) {
+      state.user = user
+    },
     SET_SECTIONS(state, sections) {
       state.sections = sections
     },
@@ -42,9 +46,9 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    fetchSections({ commit }) {
+    fetchSections({ commit, state }) {
       return dbService
-        .getSections()
+        .getSections(state.user.collName)
         .then(response => {
           commit('SET_SECTIONS', response.data.documents)
           console.log('fetched documents')
@@ -76,11 +80,19 @@ export default new Vuex.Store({
       commit('SET_LOADING_STATUS', value)
     },
     // eslint-disable-next-line no-unused-vars
-    insertDocument({ dispatch }, payload) {
+    insertDocument({ state }, payload) {
       let object = {
-        payload: payload
+        payload: payload,
+        coll: state.user.collName
       }
       return dbService.postSection(object)
+    },
+    deleteDocument({ state }, id) {
+      let object = {
+        _id: id,
+        coll: state.user.collName
+      }
+      return dbService.deleteSection(object)
     },
     editDocument({ state }, params) {
       let object = {
@@ -90,7 +102,8 @@ export default new Vuex.Store({
             ? state.editObject.arrayPath
             : state.editObject.field]: params.value
         },
-        modifyer: params.modifyer
+        modifyer: params.modifyer,
+        coll: state.user.collName
       }
       return dbService.putSection(object)
     },
@@ -100,7 +113,8 @@ export default new Vuex.Store({
         payload: {
           [state.editObject.field]: ''
         },
-        modifyer: '$unset'
+        modifyer: '$unset',
+        coll: state.user.collName
       }
       return dbService.putSection(object).catch(err => {
         return err.response.data.error

@@ -2,6 +2,8 @@
   <v-toolbar-items>
     <v-btn flat dark @click="navigateTo({ name: 'home' })">home</v-btn>
     <v-btn flat dark @click="navigateTo({ name: 'database' })">database</v-btn>
+    <v-btn flat dark @click="navigateTo({ name: 'register' })">register</v-btn>
+    <v-btn flat dark @click="navigateTo({ name: 'login' })">login</v-btn>
     <v-fab-transition>
       <v-tooltip right>
         <template v-slot:activator="{ on }">

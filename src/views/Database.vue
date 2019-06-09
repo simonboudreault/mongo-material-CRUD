@@ -201,7 +201,6 @@
 
 <script>
 import Recur from '@/components/Recur.vue'
-import dbService from '@/services/dbService'
 import { mapState, mapActions } from 'vuex'
 export default {
   components: {
@@ -281,6 +280,7 @@ export default {
       'insertDocument',
       'editDocument',
       'deleteItem',
+      'deleteDocument',
       'setEditDialog',
       'setInsertDialog',
       'setLoadingStatus',
@@ -456,12 +456,9 @@ export default {
     },
 
     confirmDelete() {
-      let object = {
-        _id: this.idToDelete
-      }
+      let _id = this.idToDelete
       this.setLoadingStatus(true)
-      dbService
-        .deleteSection(object)
+      this.deleteDocument(_id)
         // eslint-disable-next-line no-unused-vars
         .then(response => {
           this.snackbarSuccess('Document Deleted')
