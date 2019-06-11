@@ -6,6 +6,9 @@
           <v-toolbar dark color="info">
             <v-toolbar-title>Login</v-toolbar-title>
           </v-toolbar>
+          <v-alert outline :value="error" type="error" class="ma-3">{{
+            error
+          }}</v-alert>
           <v-card-text>
             <v-form autocomplete="new-password">
               <v-text-field
@@ -43,7 +46,8 @@ export default {
   data() {
     return {
       email: '',
-      password: ''
+      password: '',
+      error: ''
     }
   },
   methods: {
@@ -55,11 +59,22 @@ export default {
       }
       try {
         const response = await AuthenticationService.login(user)
-        this.$store.commit('SET_USER', user)
-        this.$router.push({ name: 'database' })
-        console.log(response.data)
+        this.$store.dispatch('login', response.data)
+        this.$store.dispatch('createSnackbar', {
+          text: `Login successful`,
+          color: 'success',
+          value: true
+        })
+        setTimeout(() => {
+          this.$router.push({ name: 'database' })
+        }, 500)
       } catch (err) {
-        console.dir(err.response.data.error)
+        this.error = err.response.data.error
+        this.$store.dispatch('createSnackbar', {
+          text: 'Unable to login',
+          color: 'error',
+          value: true
+        })
       }
     }
   }

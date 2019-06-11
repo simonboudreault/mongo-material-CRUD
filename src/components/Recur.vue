@@ -1,21 +1,11 @@
 <template>
-  <v-flex
-    row
-    xs12
-    @mouseover="isActive = true"
-    @mouseleave="isActive = false"
-    class="flexWrapper"
-  >
-    <v-expansion-panel-content
-      :class="{ hover: header !== '_id' }"
-      :readonly="header === '_id'"
-    >
+  <v-flex row xs12 @mouseover="isActive = true" @mouseleave="isActive = false" class="flexWrapper">
+    <v-expansion-panel-content :class="{ hover: header !== '_id' }" :readonly="header === '_id'">
       <template v-slot:header>
         <div class="subheading font-weight-medium">{{ header }}</div>
         <div class="accent--text text-xs-center spacer">
           <div v-if="header === '_id'">{{ value }}</div>
         </div>
-        <!-- <v-spacer class="spacer"></v-spacer> -->
         <v-fab-transition>
           <v-btn
             class="headerButton"
@@ -30,26 +20,13 @@
             <v-icon>delete</v-icon>
           </v-btn>
         </v-fab-transition>
-        <v-btn
-          color="primary"
-          v-if="deletable"
-          flat
-          fab
-          small
-          @click="deleteDocument"
-        >
+        <v-btn color="primary" v-if="deletable" flat fab small @click="deleteDocument">
           <v-icon>delete</v-icon>
         </v-btn>
-        <div class="caption font-weight-bold accent--text text-uppercase">
-          {{ type }}
-        </div>
+        <div class="caption font-weight-bold accent--text text-uppercase">{{ type }}</div>
       </template>
       <v-layout>
-        <v-flex
-          v-if="type === 'object' || type === 'array'"
-          xs-12
-          class="pa-2 fl"
-        >
+        <v-flex v-if="type === 'object' || type === 'array'" xs-12 class="pa-2 fl">
           <v-expansion-panel expand v-model="panel">
             <recur
               v-for="(element, key, index) in elements"
@@ -256,9 +233,16 @@ export default {
       return this.cPath.slice(2)
     },
     documentIndex() {
-      // eslint-disable-next-line no-useless-escape
-      let exp = new RegExp(/[^\.]*/)
+      let exp = new RegExp(/[^.]*/)
       return this.cPath.match(exp)
+    },
+    arrayItem() {
+      let exp = new RegExp(/[^.]+$/gm)
+      let match = this.path.match(exp)
+      console.log(match)
+      let replace = match[0].replace(/s$/i, '')
+      // console.log(replace)
+      return replace
     },
     header() {
       // eslint-disable-next-line no-control-regex
@@ -266,11 +250,8 @@ export default {
       return regexp.test(this.k.toString())
         ? this.deletable
           ? `Document ${this.k + 1}`
-          : `Item ${this.k + 1}`
+          : `${this.arrayItem} ${this.k + 1}`
         : this.k
-    },
-    computedKey() {
-      return Math.floor(Math.random() * 1000)
     }
   }
 }

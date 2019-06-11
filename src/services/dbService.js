@@ -1,8 +1,8 @@
 import Api from '@/services/Api'
 
 export default {
-  getSections(collName) {
-    return Api().get('/?coll=' + collName)
+  getSections(collName, isDbOn) {
+    return Api().get('/?coll=' + collName + '&isDbOn=' + isDbOn)
   },
   toggleDB() {
     return Api().get('/connexion')

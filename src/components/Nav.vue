@@ -1,9 +1,30 @@
 <template>
   <v-toolbar-items>
     <v-btn flat dark @click="navigateTo({ name: 'home' })">home</v-btn>
-    <v-btn flat dark @click="navigateTo({ name: 'database' })">database</v-btn>
-    <v-btn flat dark @click="navigateTo({ name: 'register' })">register</v-btn>
-    <v-btn flat dark @click="navigateTo({ name: 'login' })">login</v-btn>
+    <v-btn
+      v-if="$store.state.isUserLoggedIn"
+      flat
+      dark
+      @click="navigateTo({ name: 'database' })"
+      >database</v-btn
+    >
+    <v-btn
+      v-if="!$store.state.isUserLoggedIn"
+      flat
+      dark
+      @click="navigateTo({ name: 'register' })"
+      >register</v-btn
+    >
+    <v-btn
+      v-if="!$store.state.isUserLoggedIn"
+      flat
+      dark
+      @click="navigateTo({ name: 'login' })"
+      >login</v-btn
+    >
+    <v-btn v-if="$store.state.isUserLoggedIn" flat dark @click="logout"
+      >logout</v-btn
+    >
     <v-fab-transition>
       <v-tooltip right>
         <template v-slot:activator="{ on }">
@@ -39,6 +60,10 @@ export default {
       setTimeout(() => {
         this.$router.push(route)
       }, 10)
+    },
+    logout() {
+      this.$store.dispatch('logout')
+      this.$router.push({ name: 'home' })
     }
   }
 }

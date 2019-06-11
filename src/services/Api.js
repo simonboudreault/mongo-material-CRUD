@@ -1,9 +1,5 @@
 import axios from 'axios'
-
-const apiClient = axios.create({
-  baseURL: 'http://localhost:5000'
-  // baseURL: 'https://mongodb-crud-server.herokuapp.com/'
-})
+import store from '@/store/store'
 
 // apiClient.interceptors.request.use(config => {
 //   store.dispatch('setLoadingStatus', true)
@@ -19,5 +15,11 @@ const apiClient = axios.create({
 // })
 
 export default () => {
-  return apiClient
+  return axios.create({
+    baseURL: 'http://localhost:5000',
+    // baseURL: 'https://mongodb-crud-server.herokuapp.com/',
+    headers: {
+      Authorization: `Bearer ${store.state.token}`
+    }
+  })
 }
