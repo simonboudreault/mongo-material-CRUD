@@ -98,31 +98,46 @@
           <v-card>
             <v-card-title>
               <h4>Add an Item</h4>
-            </v-card-title>
-
-            <v-card-text>
-              <div class="text-xs-center title accent--text mb-4">
-                You can try inserting strings, numbers, arrays or objects.
-              </div>
-              <p
-                class="insert-example info--text pa-5 ma-4 secondary lighten-4"
+              <v-spacer></v-spacer>
+              <v-btn
+                fab
+                small
+                depressed
+                @click="expand = !expand"
+                style="font-size:20px;"
+                >?</v-btn
               >
-                [{ "id": 1, "name": "Leanne Graham", "username": "Bret",
-                "email": "Sincere@april.biz", "address": { "street": "Kulas
-                Light", "suite": "Apt. 556", "city": "Gwenborough", "zipcode":
-                "92998-3874", "geo": { "lat": "-37.3159", "lng": "81.1496" } },
-                "phone": "1-770-736-8031 x56442", "website": "hildegard.org",
-                "company": { "name": "Romaguera-Crona", "catchPhrase":
-                "Multi-layered client-server neural-net", "bs": "harness
-                real-time e-markets" } }, { "id": 2, "name": "Ervin Howell",
-                "username": "Antonette", "email": "Shanna@melissa.tv",
-                "address": { "street": "Victor Plains", "suite": "Suite 879",
-                "city": "Wisokyburgh", "zipcode": "90566-7771", "geo": { "lat":
-                "-43.9509", "lng": "-34.4618" } }, "phone": "010-692-6593
-                x09125", "website": "anastasia.net", "company": { "name":
-                "Deckow-Crist", "catchPhrase": "Proactive didactic contingency",
-                "bs": "synergize scalable supply-chains" } }]
-              </p>
+            </v-card-title>
+            <v-card-text class="text-xs-center">
+              <v-expand-transition>
+                <div v-show="expand">
+                  <div class="text-xs-center title accent--text mb-2">
+                    You can try inserting strings, numbers, arrays or objects.
+                  </div>
+                  <v-icon class="accent--text">arrow_drop_down</v-icon>
+                  <p
+                    class="text-xs-left insert-example info--text px-5 py-4 ma-4 secondary lighten-4"
+                  >
+                    [{ "id": 1, "name": "Leanne Graham", "username": "Bret",
+                    "email": "Sincere@april.biz", "address": { "street": "Kulas
+                    Light", "suite": "Apt. 556", "city": "Gwenborough",
+                    "zipcode": "92998-3874", "geo": { "lat": "-37.3159", "lng":
+                    "81.1496" } }, "phone": "1-770-736-8031 x56442", "website":
+                    "hildegard.org", "company": { "name": "Romaguera-Crona",
+                    "catchPhrase": "Multi-layered client-server neural-net",
+                    "bs": "harness real-time e-markets" } }, { "id": 2, "name":
+                    "Ervin Howell", "username": "Antonette", "email":
+                    "Shanna@melissa.tv", "address": { "street": "Victor Plains",
+                    "suite": "Suite 879", "city": "Wisokyburgh", "zipcode":
+                    "90566-7771", "geo": { "lat": "-43.9509", "lng": "-34.4618"
+                    } }, "phone": "010-692-6593 x09125", "website":
+                    "anastasia.net", "company": { "name": "Deckow-Crist",
+                    "catchPhrase": "Proactive didactic contingency", "bs":
+                    "synergize scalable supply-chains" } }]
+                  </p>
+                </div>
+              </v-expand-transition>
+
               <v-container grid-list-md>
                 <v-layout wrap>
                   <v-flex xs12>
@@ -185,11 +200,6 @@
         <!-- ERROR ALERT END -->
 
         <v-expansion-panel expand>
-          <!-- <Section
-            v-for="(section, index) in sections"
-            :section="section"
-            :key="section.id"
-          />-->
           <Recur
             v-for="(section, index) in documents"
             :elements="section"
@@ -224,16 +234,10 @@ export default {
       idToDelete: null,
       path: '',
       documents: [],
-      snackbarColor: '',
-      snackbarText: '',
-      y: 'top',
-      x: null,
-      mode: '',
-      snackbar: false,
-      error: ''
+      error: '',
+      expand: false
     }
   },
-  created() {},
   mounted() {
     if (this.isUserLoggedIn) {
       this.getSections()
@@ -307,44 +311,13 @@ export default {
         }
       })
     },
-
-    // ifJSON(str) {
-    //   try {
-    //     JSON.parse(str)
-    //   } catch (e) {
-    //     return false
-    //   }
-    //   return true
-    // },
-
     testJSON(str) {
-      // return this.ifJSON(this.value) ? JSON.parse(str) : JSON.parse(`"${str}"`)
       try {
         return JSON.parse(str)
       } catch (e) {
         return JSON.parse(`"${str}"`)
       }
     },
-    // resetSnackbar() {
-    //   let self = this
-    //   setTimeout(function() {
-    //     self.snackbarText = ''
-    //     self.snackbarColor = ''
-    //   }, this.timeout + 500)
-    // },
-    // snackbarSuccess(text) {
-    //   this.snackbarText = text
-    //   this.snackbarColor = 'accent'
-    //   this.snackbar = true
-    //   this.resetSnackbar()
-    // },
-    // snackbarError(text) {
-    //   this.snackbarText = text
-    //   this.snackbarColor = 'error'
-    //   this.snackbar = true
-    //   this.resetSnackbar()
-    // },
-
     editField() {
       let params = {
         value: this.value,
@@ -352,14 +325,12 @@ export default {
       }
       this.setLoadingStatus(true)
       this.editDocument(params)
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
+        .then(() => {
           this.createSnackbar({
             text: 'Document Modified',
             color: 'success',
             value: true
           })
-          // this.snackbarSuccess('Document Modified')
           this.editObject.component.value = params.value
           this.resetEditObject()
           this.value = ''
@@ -395,26 +366,12 @@ export default {
           this.editObject.arrayPath.pop()
           this.editObject.arrayPath.join('.')
           this.editDocument(params)
-            // eslint-disable-next-line no-unused-vars
-            .then(response => {
+            .then(() => {
               this.createSnackbar({
                 text: 'Field Deleted',
                 color: 'success',
                 value: true
               })
-              // console.log(this.sections)
-              // delete this.sections[this.editObject.path]
-              // console.log(this.sections[this.editObject.path])
-              // this.resetEditObject()
-
-              // this.editObject.component.$parent.$parent.$parent.dataElements.splice(
-              //   this.editObject.component.k,
-              //   1
-              // )
-              // this.$store.state.sections = null
-
-              // this.getSections()
-              // console.log(this.sections[1].key)
               this.getSections()
               this.value = ''
               this.resetEditObject()
@@ -437,8 +394,7 @@ export default {
       } else {
         params.modifyer = '$unset'
         this.editDocument(params)
-          // eslint-disable-next-line no-unused-vars
-          .then(response => {
+          .then(() => {
             this.createSnackbar({
               text: 'Field Deleted',
               color: 'success',
@@ -471,8 +427,7 @@ export default {
         ? { [this.key]: this.testJSON(this.value) }
         : { key: this.testJSON(this.value) }
       this.insertDocument(payload)
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
+        .then(() => {
           this.createSnackbar({
             text: 'Document Inserted',
             color: 'success',
@@ -500,8 +455,7 @@ export default {
       let _id = this.idToDelete
       this.setLoadingStatus(true)
       this.deleteDocument(_id)
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
+        .then(() => {
           this.createSnackbar({
             text: 'Document Deleted',
             color: 'success',
@@ -524,10 +478,6 @@ export default {
             this.setLoadingStatus(false)
           }
         })
-    },
-
-    openInsertDialog: function() {
-      this.setInsertDialog(true)
     },
 
     closeInsertDialog() {
@@ -554,7 +504,7 @@ export default {
       this.value = ''
     },
 
-    openDeleteDialog: function(idToDelete) {
+    openDeleteDialog(idToDelete) {
       this.deleteDialog = true
       this.idToDelete = idToDelete
     },
@@ -563,6 +513,7 @@ export default {
       this.deleteDialog = false
       this.idToDelete = null
     },
+
     toggle() {
       this.toggleDatabaseConnexion()
     }
@@ -578,7 +529,7 @@ export default {
   background: rgb(243, 243, 243) !important;
 }
 .insert-example {
-  font: 14px/20px Roboto Mono, monospace;
+  font: 14px/18px Roboto Mono, monospace;
   border-radius: 1.5em;
 }
 </style>

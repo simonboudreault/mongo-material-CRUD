@@ -53,22 +53,13 @@ export default {
     Progress,
     Notifications
   },
-  name: 'App',
-  data() {
-    return {
-      //
-    }
-  }
+  name: 'App'
 }
 </script>
 <style>
 .v-expansion-panel__header {
   padding: 5px 16px;
 }
-/* 
-.v-toolbar__extension {
-  background-color: var(--v-primary-lighten1) !important;
-} */
 
 .subheading {
   font-size: 1em;

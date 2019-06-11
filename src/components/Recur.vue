@@ -1,6 +1,16 @@
 <template>
-  <v-flex row xs12 @mouseover="isActive = true" @mouseleave="isActive = false" class="flexWrapper">
-    <v-expansion-panel-content :class="{ hover: header !== '_id' }" :readonly="header === '_id'">
+  <v-flex
+    row
+    xs12
+    @mouseover="isActive = true"
+    @mouseleave="isActive = false"
+    class="flexWrapper"
+  >
+    <v-expansion-panel-content
+      :class="{ hover: header !== '_id' }"
+      :readonly="header === '_id'"
+      :disabled="header === '_id'"
+    >
       <template v-slot:header>
         <div class="subheading font-weight-medium">{{ header }}</div>
         <div class="accent--text text-xs-center spacer">
@@ -20,13 +30,26 @@
             <v-icon>delete</v-icon>
           </v-btn>
         </v-fab-transition>
-        <v-btn color="primary" v-if="deletable" flat fab small @click="deleteDocument">
+        <v-btn
+          color="primary"
+          v-if="deletable"
+          flat
+          fab
+          small
+          @click="deleteDocument"
+        >
           <v-icon>delete</v-icon>
         </v-btn>
-        <div class="caption font-weight-bold accent--text text-uppercase">{{ type }}</div>
+        <div class="caption font-weight-bold accent--text text-uppercase">
+          {{ type }}
+        </div>
       </template>
       <v-layout>
-        <v-flex v-if="type === 'object' || type === 'array'" xs-12 class="pa-2 fl">
+        <v-flex
+          v-if="type === 'object' || type === 'array'"
+          xs-12
+          class="pa-2 fl"
+        >
           <v-expansion-panel expand v-model="panel">
             <recur
               v-for="(element, key, index) in elements"
@@ -41,7 +64,7 @@
           </v-expansion-panel>
         </v-flex>
         <v-flex xs12 v-else class="text-xs-center">
-          {{ value }}
+          <div class="value mx-5 pa-4 secondary lighten-3">{{ value }}</div>
           <Badge v-if="k !== '_id'" @edit="editDocument"></Badge>
         </v-flex>
       </v-layout>
@@ -51,19 +74,9 @@
 <script>
 import recur from '@/components/Recur.vue'
 import Badge from '@/components/Badge.vue'
-import dbService from '@/services/dbService'
 export default {
   name: 'recur',
-  props: [
-    'elements',
-    'k',
-    'index',
-    'path',
-    'deletable',
-    'lazy',
-    'isArray',
-    'oPath'
-  ],
+  props: ['elements', 'k', 'index', 'path', 'deletable', 'isArray', 'oPath'],
   components: {
     recur,
     Badge
@@ -85,10 +98,6 @@ export default {
     }
   },
   mounted() {
-    // this.$store.dispatch('setRenderCount', -1)
-    // if (this.cPath === '_id') {
-    //   this.$store.state.id = this.elements
-    // }
     let ind = this.documentIndex[0]
     this.docId = this.$store.state.sections[ind]._id.toString()
   },
@@ -114,69 +123,12 @@ export default {
         oPath: this.oPath,
         property: this.k
       }
-      // console.log(eval('this.$store.state.sections' + this.oPath))
       this.$store.dispatch('setDeleteItemDialog', true)
       this.$store.dispatch('setEditObject', editObject)
     },
     deleteDocument(e) {
       e.stopPropagation()
       this.$emit('delete-document', this.docId)
-    },
-    confirmDelete() {
-      let object = {
-        _id: this.docId
-      }
-      dbService.deleteSection(object).then(response => {
-        console.log(
-          response.data.ok
-            ? `Votre document a été supprimé : \n ${this.docId}`
-            : `Votre document n'a PAS été supprimé !`
-        )
-        this.$store.dispatch('fetchSections')
-      })
-      this.closeDelete()
-    },
-
-    changeInfo() {
-      let object = {
-        _id: this.docId,
-        payload: {
-          [this.cField]: this.value
-        }
-      }
-      dbService
-        .putSection(object)
-        .then(response =>
-          console.log(
-            response.data.nModified
-              ? `Votre modification a été enregistrée : \n ${
-                  Object.keys(object.payload)[0]
-                } => ${object.payload[this.cField]}`
-              : `Votre modification n'a PAS été enregistrée !`
-          )
-        )
-      this.close()
-    },
-    // editItem(item) {
-    //   this.editedIndex = this.desserts.indexOf(item)
-    //   this.editedItem = Object.assign({}, item)
-    //   this.dialog = true
-    // },
-
-    // deleteItem(item) {
-    //   const index = this.desserts.indexOf(item)
-    //   confirm('Are you sure you want to delete this item?') &&
-    //     this.desserts.splice(index, 1)
-    // },
-    close() {
-      this.dialog = false
-      // setTimeout(() => {
-      //   this.editedItem = Object.assign({}, this.defaultItem)
-      //   this.editedIndex = -1
-      // }, 300)
-    },
-    closeDelete() {
-      this.$store.state.deleteDialog = false
     },
     typeOf(el) {
       if (typeof el === 'object') {
@@ -188,20 +140,7 @@ export default {
       } else {
         return typeof el
       }
-    },
-    activate() {
-      console.log('activate')
-      this.isActive = !this.isActive
     }
-
-    // save() {
-    //   if (this.editedIndex > -1) {
-    //     Object.assign(this.desserts[this.editedIndex], this.editedItem)
-    //   } else {
-    //     this.desserts.push(this.editedItem)
-    //   }
-    //   this.close()
-    // },
   },
   computed: {
     type() {
@@ -241,11 +180,9 @@ export default {
       let match = this.path.match(exp)
       console.log(match)
       let replace = match[0].replace(/s$/i, '')
-      // console.log(replace)
       return replace
     },
     header() {
-      // eslint-disable-next-line no-control-regex
       let regexp = new RegExp('[0-9]')
       return regexp.test(this.k.toString())
         ? this.deletable
@@ -260,9 +197,6 @@ export default {
 .fl {
   background-color: rgba(0, 0, 0, 0.103);
 }
-.v-expansion-panel__container--active {
-  /* background: #ff000046 !important; */
-}
 .hover:hover {
   background: rgb(243, 243, 243) !important;
 }
@@ -272,13 +206,6 @@ export default {
 
 .v-btn {
   transition-duration: 200ms;
-}
-
-.v-btn:hover {
-  /* color: var(--v-error-base) !important; */
-}
-
-.v-btn--floating {
 }
 
 .v-btn:before {
@@ -303,7 +230,15 @@ export default {
   width: 100% !important;
 }
 
-/* .v-expansion-panel__container--active:hover {
-  background: #fff !important;
-} */
+.value {
+  font: 16px Roboto Mono, monospace;
+  border-radius: 1.5em;
+}
+.noPointer {
+  cursor: wait !important;
+}
+
+.v-expansion-panel__container--disabled {
+  color: inherit !important;
+}
 </style>

@@ -6,9 +6,21 @@
           <v-toolbar dark color="info">
             <v-toolbar-title>Register</v-toolbar-title>
           </v-toolbar>
-          <v-alert outline :value="error" type="error" class="ma-3">
-            {{ error }}
-          </v-alert>
+          <v-flex>
+            <v-expand-transition>
+              <div v-show="container">
+                <v-alert
+                  dismissible
+                  v-show="alert"
+                  v-model="container"
+                  outline
+                  type="error"
+                  class="ma-3"
+                  >{{ error }}</v-alert
+                >
+              </div>
+            </v-expand-transition>
+          </v-flex>
           <v-card-text>
             <v-form autocomplete="new-password">
               <v-text-field
@@ -47,7 +59,22 @@ export default {
     return {
       email: '',
       password: '',
-      error: ''
+      error: '',
+      alert: false,
+      container: false
+    }
+  },
+  watch: {
+    alert(newValue) {
+      this.$nextTick(() => {
+        this.container = newValue
+      })
+    },
+
+    container(newValue) {
+      this.$nextTick(() => {
+        this.alert = newValue
+      })
     }
   },
   methods: {
@@ -69,6 +96,7 @@ export default {
           this.$router.push({ name: 'database' })
         }, 500)
       } catch (err) {
+        this.alert = true
         this.error = err.response.data.error
         this.$store.dispatch('createSnackbar', {
           text: 'Unable to register',
