@@ -9,12 +9,12 @@ Vue.use(Vuetify, {
   },
   theme: {
     primary: '#1a1a1a',
-    secondary: '#000000',
+    secondary: '#777777',
     accent: '#13aa52',
     // accent: '#68b245',
     error: '#B00020',
     info: '#46494C',
-    success: '#4CAF50',
+    success: '#13aa52',
     warning: '#FFC107'
   }
 })

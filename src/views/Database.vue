@@ -98,9 +98,46 @@
           <v-card>
             <v-card-title>
               <h4>Add an Item</h4>
+              <v-spacer></v-spacer>
+              <v-btn
+                fab
+                small
+                depressed
+                @click="expand = !expand"
+                style="font-size:20px;"
+                >?</v-btn
+              >
             </v-card-title>
+            <v-card-text class="text-xs-center">
+              <v-expand-transition>
+                <div v-show="expand">
+                  <div class="text-xs-center title accent--text mb-2">
+                    You can try inserting strings, numbers, arrays or objects.
+                  </div>
+                  <v-icon class="accent--text">arrow_drop_down</v-icon>
+                  <p
+                    class="text-xs-left insert-example info--text px-5 py-4 ma-4 secondary lighten-4"
+                  >
+                    [{ "id": 1, "name": "Leanne Graham", "username": "Bret",
+                    "email": "Sincere@april.biz", "address": { "street": "Kulas
+                    Light", "suite": "Apt. 556", "city": "Gwenborough",
+                    "zipcode": "92998-3874", "geo": { "lat": "-37.3159", "lng":
+                    "81.1496" } }, "phone": "1-770-736-8031 x56442", "website":
+                    "hildegard.org", "company": { "name": "Romaguera-Crona",
+                    "catchPhrase": "Multi-layered client-server neural-net",
+                    "bs": "harness real-time e-markets" } }, { "id": 2, "name":
+                    "Ervin Howell", "username": "Antonette", "email":
+                    "Shanna@melissa.tv", "address": { "street": "Victor Plains",
+                    "suite": "Suite 879", "city": "Wisokyburgh", "zipcode":
+                    "90566-7771", "geo": { "lat": "-43.9509", "lng": "-34.4618"
+                    } }, "phone": "010-692-6593 x09125", "website":
+                    "anastasia.net", "company": { "name": "Deckow-Crist",
+                    "catchPhrase": "Proactive didactic contingency", "bs":
+                    "synergize scalable supply-chains" } }]
+                  </p>
+                </div>
+              </v-expand-transition>
 
-            <v-card-text>
               <v-container grid-list-md>
                 <v-layout wrap>
                   <v-flex xs12>
@@ -136,16 +173,16 @@
                 outline
                 class="mb-3"
                 @click="toggle"
-                :color="isDBOn ? 'accent' : 'error'"
+                :color="isDbOn ? 'accent' : 'error'"
                 v-on="on"
-                >database is {{ isDBOn ? 'on' : 'off' }}</v-btn
+                >database is {{ isDbOn ? 'on' : 'off' }}</v-btn
               >
             </div>
           </template>
           <span>
             {{
-              isDBOn
-                ? 'Break server link to database'
+              isDbOn
+                ? 'Trigger errors from server calls to database'
                 : 'Restore server link to database'
             }}
           </span>
@@ -163,11 +200,6 @@
         <!-- ERROR ALERT END -->
 
         <v-expansion-panel expand>
-          <!-- <Section
-            v-for="(section, index) in sections"
-            :section="section"
-            :key="section.id"
-          />-->
           <Recur
             v-for="(section, index) in documents"
             :elements="section"
@@ -182,26 +214,11 @@
         </v-expansion-panel>
       </v-flex>
     </v-layout>
-    <v-snackbar
-      v-model="snackbar"
-      :bottom="y === 'bottom'"
-      :left="x === 'left'"
-      :multi-line="mode === 'multi-line'"
-      :right="x === 'right'"
-      :timeout="timeout"
-      :color="snackbarColor"
-      :top="y === 'top'"
-      :vertical="mode === 'vertical'"
-    >
-      {{ snackbarText }}
-      <v-btn flat @click="snackbar = false">Close</v-btn>
-    </v-snackbar>
   </div>
 </template>
 
 <script>
 import Recur from '@/components/Recur.vue'
-import dbService from '@/services/dbService'
 import { mapState, mapActions } from 'vuex'
 export default {
   components: {
@@ -217,29 +234,23 @@ export default {
       idToDelete: null,
       path: '',
       documents: [],
-      snackbarColor: '',
-      snackbarText: '',
-      y: 'top',
-      x: null,
-      mode: '',
-      timeout: 1200,
-      snackbar: false,
       error: '',
-      isDBOn: true
+      expand: false
     }
   },
-  created() {
-    // eslint-disable-next-line prettier/prettier
-    this.getSections()
-  },
   mounted() {
-    this.setLoadingStatus(true)
+    if (this.isUserLoggedIn) {
+      this.getSections()
+      this.setLoadingStatus(true)
 
-    if (this.sections.length !== 0) {
-      setTimeout(() => {
-        this.documents = this.sections
-        this.setLoadingStatus(false)
-      }, 50)
+      if (this.sections.length !== 0) {
+        setTimeout(() => {
+          this.documents = this.sections
+          this.setLoadingStatus(false)
+        }, 50)
+      }
+    } else {
+      this.error = 'You need to be logged in'
     }
   },
   computed: {
@@ -249,7 +260,9 @@ export default {
       'editDialog',
       'insertDialog',
       'deleteItemDialog',
-      'loading'
+      'loading',
+      'isDbOn',
+      'isUserLoggedIn'
     ])
   },
   watch: {
@@ -281,62 +294,30 @@ export default {
       'insertDocument',
       'editDocument',
       'deleteItem',
+      'deleteDocument',
       'setEditDialog',
       'setInsertDialog',
       'setLoadingStatus',
       'setDeleteItemDialog',
       'resetEditObject',
-      'toggleDatabaseConnexion'
+      'toggleDatabaseConnexion',
+      'createSnackbar'
     ]),
     getSections() {
       this.setLoadingStatus(true)
-      this.fetchSections().then(res => {
-        if (typeof res === 'boolean') {
-          this.isDBOn = res
-        } else {
-          this.error = res
-          this.isDBOn = false
+      this.fetchSections().then(data => {
+        if (data.error) {
+          this.error = data.error
         }
       })
     },
-
-    // ifJSON(str) {
-    //   try {
-    //     JSON.parse(str)
-    //   } catch (e) {
-    //     return false
-    //   }
-    //   return true
-    // },
-
     testJSON(str) {
-      // return this.ifJSON(this.value) ? JSON.parse(str) : JSON.parse(`"${str}"`)
       try {
         return JSON.parse(str)
       } catch (e) {
         return JSON.parse(`"${str}"`)
       }
     },
-    resetSnackbar() {
-      let self = this
-      setTimeout(function() {
-        self.snackbarText = ''
-        self.snackbarColor = ''
-      }, this.timeout + 500)
-    },
-    snackbarSuccess(text) {
-      this.snackbarText = text
-      this.snackbarColor = 'accent'
-      this.snackbar = true
-      this.resetSnackbar()
-    },
-    snackbarError(text) {
-      this.snackbarText = text
-      this.snackbarColor = 'error'
-      this.snackbar = true
-      this.resetSnackbar()
-    },
-
     editField() {
       let params = {
         value: this.value,
@@ -344,9 +325,12 @@ export default {
       }
       this.setLoadingStatus(true)
       this.editDocument(params)
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
-          this.snackbarSuccess('Document Modified')
+        .then(() => {
+          this.createSnackbar({
+            text: 'Document Modified',
+            color: 'success',
+            value: true
+          })
           this.editObject.component.value = params.value
           this.resetEditObject()
           this.value = ''
@@ -354,7 +338,11 @@ export default {
         })
         .catch(err => {
           if (err) {
-            this.snackbarError(err.response.data.error)
+            this.createSnackbar({
+              text: err.response.data.error,
+              color: 'error',
+              value: true
+            })
             this.editObject.component.value = params.value
             this.resetEditObject()
             this.value = ''
@@ -378,22 +366,12 @@ export default {
           this.editObject.arrayPath.pop()
           this.editObject.arrayPath.join('.')
           this.editDocument(params)
-            // eslint-disable-next-line no-unused-vars
-            .then(response => {
-              this.snackbarSuccess('Field Deleted')
-              // console.log(this.sections)
-              // delete this.sections[this.editObject.path]
-              // console.log(this.sections[this.editObject.path])
-              // this.resetEditObject()
-
-              // this.editObject.component.$parent.$parent.$parent.dataElements.splice(
-              //   this.editObject.component.k,
-              //   1
-              // )
-              // this.$store.state.sections = null
-
-              // this.getSections()
-              // console.log(this.sections[1].key)
+            .then(() => {
+              this.createSnackbar({
+                text: 'Field Deleted',
+                color: 'success',
+                value: true
+              })
               this.getSections()
               this.value = ''
               this.resetEditObject()
@@ -401,7 +379,11 @@ export default {
             })
             .catch(err => {
               if (err) {
-                this.snackbarError(err.response.data.error)
+                this.createSnackbar({
+                  text: err.response.data.error,
+                  color: 'error',
+                  value: true
+                })
                 this.getSections()
                 this.value = ''
                 this.resetEditObject()
@@ -412,9 +394,12 @@ export default {
       } else {
         params.modifyer = '$unset'
         this.editDocument(params)
-          // eslint-disable-next-line no-unused-vars
-          .then(response => {
-            this.snackbarSuccess('Field Deleted')
+          .then(() => {
+            this.createSnackbar({
+              text: 'Field Deleted',
+              color: 'success',
+              value: true
+            })
             this.getSections()
             this.value = ''
             this.resetEditObject()
@@ -422,7 +407,11 @@ export default {
           })
           .catch(err => {
             if (err) {
-              this.snackbarError(err.response.data.error)
+              this.createSnackbar({
+                text: err.response.data.error,
+                color: 'error',
+                value: true
+              })
               this.value = ''
               this.resetEditObject()
               this.setLoadingStatus(false)
@@ -438,16 +427,23 @@ export default {
         ? { [this.key]: this.testJSON(this.value) }
         : { key: this.testJSON(this.value) }
       this.insertDocument(payload)
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
-          this.snackbarSuccess('Document Inserted')
+        .then(() => {
+          this.createSnackbar({
+            text: 'Document Inserted',
+            color: 'success',
+            value: true
+          })
           this.getSections()
           this.value = ''
           this.setLoadingStatus(false)
         })
         .catch(err => {
           if (err) {
-            this.snackbarError(err.response.data.error)
+            this.createSnackbar({
+              text: err.response.data.error,
+              color: 'error',
+              value: true
+            })
             this.value = ''
             this.setLoadingStatus(false)
           }
@@ -456,15 +452,15 @@ export default {
     },
 
     confirmDelete() {
-      let object = {
-        _id: this.idToDelete
-      }
+      let _id = this.idToDelete
       this.setLoadingStatus(true)
-      dbService
-        .deleteSection(object)
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
-          this.snackbarSuccess('Document Deleted')
+      this.deleteDocument(_id)
+        .then(() => {
+          this.createSnackbar({
+            text: 'Document Deleted',
+            color: 'success',
+            value: true
+          })
           this.getSections()
           this.idToDelete = null
           this.deleteDialog = false
@@ -472,16 +468,16 @@ export default {
         })
         .catch(err => {
           if (err) {
-            this.snackbarError(err.response.data.error)
+            this.createSnackbar({
+              text: err.response.data.error,
+              color: 'error',
+              value: true
+            })
             this.idToDelete = null
             this.deleteDialog = false
             this.setLoadingStatus(false)
           }
         })
-    },
-
-    openInsertDialog: function() {
-      this.setInsertDialog(true)
     },
 
     closeInsertDialog() {
@@ -508,7 +504,7 @@ export default {
       this.value = ''
     },
 
-    openDeleteDialog: function(idToDelete) {
+    openDeleteDialog(idToDelete) {
       this.deleteDialog = true
       this.idToDelete = idToDelete
     },
@@ -517,14 +513,9 @@ export default {
       this.deleteDialog = false
       this.idToDelete = null
     },
+
     toggle() {
-      this.toggleDatabaseConnexion().then(response => {
-        if (this.documents.length === 0) {
-          this.error = ''
-          setTimeout(this.getSections, 250)
-        }
-        this.isDBOn = response
-      })
+      this.toggleDatabaseConnexion()
     }
   }
 }
@@ -536,5 +527,9 @@ export default {
 }
 .hover:hover {
   background: rgb(243, 243, 243) !important;
+}
+.insert-example {
+  font: 14px/18px Roboto Mono, monospace;
+  border-radius: 1.5em;
 }
 </style>

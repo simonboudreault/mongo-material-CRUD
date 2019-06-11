@@ -1,5 +1,6 @@
 <template>
   <v-app>
+    <Notifications></Notifications>
     <v-toolbar dark extended app color="primary">
       <!-- PROGRESS BAR -->
 
@@ -9,12 +10,29 @@
 
       <!-- PROGRESS BAR END-->
       <v-toolbar-title class="headline text-uppercase">
-        <span>MONGO DB</span>&nbsp;
-        <span class="font-weight-light">MATERIAL</span>
-    <img src="images/mongo.svg" class="feuille"></img>
+        <span :class="{ subheading: $vuetify.breakpoint.xs }">MONGO DB</span
+        >&nbsp;
+        <span
+          class="font-weight-light"
+          :class="{ subheading: $vuetify.breakpoint.xs }"
+          >MATERIAL</span
+        >
+        <img
+          v-if="!$vuetify.breakpoint.xs"
+          src="images/mongo.svg"
+          class="feuille"
+        />
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <Nav></Nav>
+      <mobileNav v-if="$vuetify.breakpoint.xs"></mobileNav>
+      <Nav v-if="!$vuetify.breakpoint.xs"></Nav>
+      <template v-slot:extension v-if="$store.state.isUserLoggedIn">
+        <v-spacer></v-spacer>
+        <v-toolbar-title class="white--text body-2 user">
+          <v-icon color="accent" size="25" class="mr-2">account_circle</v-icon>
+          {{ $store.state.user.email }}
+        </v-toolbar-title>
+      </template>
     </v-toolbar>
 
     <v-content>
@@ -25,18 +43,17 @@
 
 <script>
 import Nav from './components/Nav.vue'
+import MobileNav from './components/MobileNav.vue'
 import Progress from '@/components/Progress.vue'
+import Notifications from '@/components/Notifications.vue'
 export default {
   components: {
     Nav,
-    Progress
+    MobileNav,
+    Progress,
+    Notifications
   },
-  name: 'App',
-  data() {
-    return {
-      //
-    }
-  }
+  name: 'App'
 }
 </script>
 <style>
@@ -44,9 +61,17 @@ export default {
   padding: 5px 16px;
 }
 
+.subheading {
+  font-size: 1em;
+}
+
 .feuille {
   width: 15px;
   position: absolute;
   margin-left: 10px;
+}
+
+.user {
+  display: flex;
 }
 </style>
