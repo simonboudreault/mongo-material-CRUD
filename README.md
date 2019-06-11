@@ -1,6 +1,6 @@
 # mongoDB material CRUD
 
-live version : https://simonboudreault.github.io/mongo-material-CRUD/#/database
+live version : https://simonboudreault.github.io/mongo-material-CRUD/#/
 
 ## Project setup
 
