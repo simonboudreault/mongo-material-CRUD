@@ -2,45 +2,9 @@
 
 live version : https://simonboudreault.github.io/mongo-material-CRUD/#/
 
-## Project setup
+
+### 
 
 ```
-git init
-npm install
-```
-
-### Compiles and hot-reloads for development
-
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-
-```
-npm run build
-```
-
-### Run your tests
-
-```
-npm run test
-```
-
-### Lints and fixes files
-
-```
-npm run lint
-```
-
-### Run your end-to-end tests
-
-```
-npm run test:e2e
-```
-
-### Run your unit tests
-
-```
-npm run test:unit
+Cette application sert à visualiser une collection de mongo DB avec une interface de material design. Elle permet de s'enregistrer et crée une collection sur la base de donnée avec laquelle on peut interagir (CRUD). Il est possible d'insérer des documents, de les modifier et de les effacer. 
 ```
