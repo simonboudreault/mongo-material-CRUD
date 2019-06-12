@@ -108,33 +108,29 @@
                 >?</v-btn
               >
             </v-card-title>
-            <v-card-text class="text-xs-center">
+            <v-card-text class="text-xs-center py-0">
               <v-expand-transition>
                 <div v-show="expand">
                   <div class="text-xs-center title accent--text mb-2">
-                    You can try inserting strings, numbers, arrays or objects.
+                    You can try inserting strings, numbers, arrays or objects as
+                    the value.
                   </div>
                   <v-icon class="accent--text">arrow_drop_down</v-icon>
                   <p
-                    class="text-xs-left insert-example info--text px-5 py-4 ma-4 secondary lighten-4"
+                    class="text-xs-left insert-example info--text px-5 py-4 mx-4 secondary lighten-4"
                   >
-                    [{ "id": 1, "name": "Leanne Graham", "username": "Bret",
-                    "email": "Sincere@april.biz", "address": { "street": "Kulas
-                    Light", "suite": "Apt. 556", "city": "Gwenborough",
-                    "zipcode": "92998-3874", "geo": { "lat": "-37.3159", "lng":
-                    "81.1496" } }, "phone": "1-770-736-8031 x56442", "website":
-                    "hildegard.org", "company": { "name": "Romaguera-Crona",
-                    "catchPhrase": "Multi-layered client-server neural-net",
-                    "bs": "harness real-time e-markets" } }, { "id": 2, "name":
-                    "Ervin Howell", "username": "Antonette", "email":
-                    "Shanna@melissa.tv", "address": { "street": "Victor Plains",
-                    "suite": "Suite 879", "city": "Wisokyburgh", "zipcode":
-                    "90566-7771", "geo": { "lat": "-43.9509", "lng": "-34.4618"
-                    } }, "phone": "010-692-6593 x09125", "website":
-                    "anastasia.net", "company": { "name": "Deckow-Crist",
-                    "catchPhrase": "Proactive didactic contingency", "bs":
-                    "synergize scalable supply-chains" } }]
+                    {{ sampleDocument }}
                   </p>
+                  <v-card-actions class="text-xs-center">
+                    <v-flex>
+                      <v-btn color="accent" flat @click="initialize"
+                        >Try it !</v-btn
+                      >
+                      <v-btn color="error" flat @click="expand = false"
+                        >Close this</v-btn
+                      >
+                    </v-flex>
+                  </v-card-actions>
                 </div>
               </v-expand-transition>
 
@@ -235,7 +231,9 @@ export default {
       path: '',
       documents: [],
       error: '',
-      expand: false
+      expand: true,
+      sampleDocument:
+        '[{ "id": 1, "name": "Leanne Graham", "username": "Bret", "email": "Sincere@april.biz", "address": { "street": "Kulas Light", "suite": "Apt. 556", "city": "Gwenborough", "zipcode": "92998-3874", "geo": { "lat": "-37.3159", "lng": "81.1496" } }, "phone": "1-770-736-8031 x56442", "website": "hildegard.org", "company": { "name": "Romaguera-Crona", "catchPhrase": "Multi-layered client-server neural-net", "bs": "harness real-time e-markets" } }, { "id": 2, "name": "Ervin Howell", "username": "Antonette", "email": "Shanna@melissa.tv", "address": { "street": "Victor Plains", "suite": "Suite 879", "city": "Wisokyburgh", "zipcode": "90566-7771", "geo": { "lat": "-43.9509", "lng": "-34.4618" } }, "phone": "010-692-6593 x09125", "website": "anastasia.net", "company": { "name": "Deckow-Crist", "catchPhrase": "Proactive didactic contingency", "bs": "synergize scalable supply-chains" } }]'
     }
   },
   mounted() {
@@ -478,6 +476,12 @@ export default {
             this.setLoadingStatus(false)
           }
         })
+    },
+
+    initialize() {
+      this.value = this.sampleDocument
+      this.key = 'users'
+      this.insertInfo()
     },
 
     closeInsertDialog() {

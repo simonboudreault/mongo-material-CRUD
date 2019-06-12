@@ -73,7 +73,6 @@ export default new Vuex.Store({
         .catch(err => {
           commit('SET_LOADING_STATUS', false)
           commit('SET_SECTIONS', [])
-          // console.log(err.response.data.error)
           return err.response.data
         })
     },
