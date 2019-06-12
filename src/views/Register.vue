@@ -25,11 +25,12 @@
             <v-form autocomplete="new-password">
               <v-text-field
                 prepend-icon="person"
-                name="register"
-                label="register"
+                name="email"
+                label="email"
                 type="text"
                 autocomplete="off"
                 v-model="email"
+                @keypress.enter="register"
               ></v-text-field>
               <v-text-field
                 prepend-icon="lock"
@@ -84,6 +85,7 @@ export default {
         password: this.password,
         collName: this.email
       }
+      this.$store.dispatch('setLoadingStatus', true)
       try {
         const response = await AuthenticationService.register(user)
         this.$store.dispatch('login', response.data)
@@ -103,6 +105,7 @@ export default {
           color: 'error',
           value: true
         })
+        this.$store.dispatch('setLoadingStatus', false)
       }
     }
   }

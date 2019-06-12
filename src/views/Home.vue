@@ -6,7 +6,10 @@
           <v-flex class="header display-1 primary white--text">
             <h1 class="mb-5">Welcome</h1>
             <p>This is a material design visualizer for a mongoDB database</p>
-            <v-card-actions class="pa-0 mt-5">
+            <v-card-actions
+              v-if="!$store.state.isUserLoggedIn"
+              class="pa-0 mt-5"
+            >
               <router-link to="register">
                 <v-btn round large depressed color="accent">Register</v-btn>
               </router-link>
